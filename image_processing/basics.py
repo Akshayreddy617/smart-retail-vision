@@ -3,18 +3,17 @@ import cv2
 # Read image
 image = cv2.imread("images/shelf.jpg")
 
-# Check image
 if image is None:
     print("Image not found")
     exit()
 
-# Resize
+# Resize image
 image = cv2.resize(image, (800, 500))
 
 # Convert to grayscale
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-# Blur
+# Blur image
 blur = cv2.GaussianBlur(gray, (5, 5), 0)
 
 # Edge detection
@@ -27,18 +26,31 @@ contours, hierarchy = cv2.findContours(
     cv2.CHAIN_APPROX_SIMPLE
 )
 
-# Draw contours
-cv2.drawContours(image, contours, -1, (0, 255, 0), 2)
+# Loop through contours
+for contour in contours:
 
-# Print contour count
-print("Contours found:", len(contours))
+    # Ignore tiny contours
+    area = cv2.contourArea(contour)
+
+    if area > 500:
+
+        # Get bounding rectangle
+        x, y, w, h = cv2.boundingRect(contour)
+
+        # Draw rectangle
+        cv2.rectangle(
+            image,
+            (x, y),
+            (x + w, y + h),
+            (0, 255, 0),
+            2
+        )
+
+# Show result
+cv2.imshow("Bounding Boxes", image)
 
 # Save output
-cv2.imwrite("outputs/contours.jpg", image)
-
-# Show outputs
-cv2.imshow("Edges", edges)
-cv2.imshow("Contours", image)
+cv2.imwrite("outputs/bounding_boxes.jpg", image)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
